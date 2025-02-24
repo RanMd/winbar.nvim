@@ -34,6 +34,7 @@ end
 
 ---@return string
 function M.get_winbar(opts)
+  vim.notify("hola")
   local diagnostics = {}
   local icon, hl = "", ""
   local should_dim = not opts.active and config.options.dim_inactive.enabled
