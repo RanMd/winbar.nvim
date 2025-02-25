@@ -51,31 +51,25 @@ function M.get_winbar(opts)
     hl = config.options.dim_inactive.highlight
   end
 
-  -- local sectionA = " %#" .. "MiniIconsAzure" .. "#" .. icon
+  -- alocal sectionA = " %#" .. "MiniIconsAzure" .. "#" .. icon
   local sectionA = "%#" .. hl .. "#" .. icon
-  local sectionBhl = hl
+  local sectionBhl = "TroubleText"
   local sectionC = ""
 
   if vim.api.nvim_get_option_value("mod", {}) and config.options.buf_modified_symbol then
-    -- if diagnostics.level == "other" then
-    --   sectionBhl = "BufferCurrentMod"
-    --   sectionC = "%#" .. sectionBhl .. "# " .. config.options.buf_modified_symbol
-    -- else
-    --   sectionC = " " .. config.options.buf_modified_symbol
-    -- end
     sectionBhl = "BufferCurrentMod"
     sectionC = "%#" .. sectionBhl .. "# " .. config.options.buf_modified_symbol
   end
 
-  -- if diagnostics.level == "error" then
-  --   sectionBhl = "DiagnosticError"
-  -- elseif diagnostics.level == "warning" then
-  --   sectionBhl = "DiagnosticWarn"
-  -- elseif diagnostics.level == "info" then
-  --   sectionBhl = "DiagnosticInfo"
-  -- elseif diagnostics.level == "hint" then
-  --   sectionBhl = "DiagnosticHint"
-  -- end
+  if diagnostics.level == "error" then
+    sectionBhl = "DiagnosticError"
+  elseif diagnostics.level == "warning" then
+    sectionBhl = "DiagnosticWarn"
+  elseif diagnostics.level == "info" then
+    sectionBhl = "DiagnosticInfo"
+  elseif diagnostics.level == "hint" then
+    sectionBhl = "DiagnosticHint"
+  end
 
   -- don't highlight name if the window is not active
   if should_dim and config.options.dim_inactive.name then

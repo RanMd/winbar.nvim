@@ -85,12 +85,6 @@ function M.get_icon(get_icon_fun)
   if not icon then
     icon, hl, is_default = get_icon_fun("filetype", ext)
   end
-  -- vim.print("FL: " .. filetype)
-  -- vim.print("PATH: " .. path)
-  -- vim.print("EXT: " .. ext)
-  -- vim.print("ICONO: " .. icon)
-  vim.print("HL: " .. hl)
-  -- vim.print("DEFAULT: " .. tostring(is_default))
 
   if not icon then
     return "", ""
