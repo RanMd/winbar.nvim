@@ -52,7 +52,7 @@ function M.get_winbar(opts)
   end
 
   -- alocal sectionA = " %#" .. "MiniIconsAzure" .. "#" .. icon
-  local sectionA = "%#" .. hl .. "#" .. icon
+  local sectionA = " %#" .. hl .. "#" .. icon
   local sectionBhl = "WinBar"
   local sectionC = ""
 
@@ -70,13 +70,15 @@ function M.get_winbar(opts)
   elseif diagnostics.level == "hint" then
     sectionBhl = "DiagnosticHint"
   end
+  local a = vim.fn.fnamemodify(vim.fn.expand("%:p:h"), ":.")
 
   -- don't highlight name if the window is not active
   if should_dim and config.options.dim_inactive.name then
     sectionBhl = config.options.dim_inactive.highlight
   end
 
-  local sectionB = " " .. "%#" .. sectionBhl .. "#" .. get_folders() .. "%t" .. sectionC
+  -- local sectionB = "  " .. "%#" .. sectionBhl .. "#" .. get_folders() .. "%t" .. sectionC
+  local sectionB = "  " .. "%#" .. sectionBhl .. "#" .. "%t " .. "%#WinBarDir#" .. a .. sectionC
   return sectionA .. sectionB .. "%*"
 end
 
