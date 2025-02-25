@@ -74,42 +74,29 @@ function M.get_diagnostics()
   return setmetatable(result, mt)
 end
 
-local nvim_set_hl = vim.api.nvim_set_hl
-function M.set_up_highlight(icon_data)
-  local hl_group = M.get_highlight_name(icon_data)
-  if hl_group and (icon_data.color or icon_data.cterm_color) then
-    nvim_set_hl(0, M.get_highlight_name(icon_data), {
-      fg = icon_data.color,
-      ctermfg = tonumber(icon_data.cterm_color),
-    })
-  end
-end
-
-function M.get_highlight_name(data)
-  return "DevIcon" .. data.name
-end
-
 ---@return string, string
-function M.get_icon(icons_by_filename, icons_by_extension)
+---@param get_icon_fun function
+function M.get_icon(get_icon_fun)
   local path = vim.fn.bufname()
   local filetype = vim.fn.fnamemodify(path, ":t")
   local ext = vim.fn.fnamemodify(path, ":e")
-  if vim.bo.filetype == "" then
-    return "", "Default"
-  end
 
-  if vim.fn.isdirectory(path) > 0 then
-    return "", "Default"
+  local icon, hl, is_default = get_icon_fun("file", filetype)
+  if not icon then
+    icon, hl, is_default = get_icon_fun("filetype", ext)
   end
-
-  local icon = icons_by_filename[string.lower(filetype)] or icons_by_extension[ext]
+  -- vim.print("FL: " .. filetype)
+  -- vim.print("PATH: " .. path)
+  -- vim.print("EXT: " .. ext)
+  -- vim.print("ICONO: " .. icon)
+  vim.print("HL: " .. hl)
+  -- vim.print("DEFAULT: " .. tostring(is_default))
 
   if not icon then
     return "", ""
   end
 
-  M.set_up_highlight(icon)
-  return icon.icon, M.get_highlight_name(icon)
+  return icon, hl
 end
 
 return M

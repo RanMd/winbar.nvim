@@ -34,7 +34,6 @@ end
 
 ---@return string
 function M.get_winbar(opts)
-  vim.notify("hola")
   local diagnostics = {}
   local icon, hl = "", ""
   local should_dim = not opts.active and config.options.dim_inactive.enabled
@@ -44,7 +43,7 @@ function M.get_winbar(opts)
   end
 
   if config.options.icons then
-    icon, hl = utils.get_icon(M.icons_by_filename, M.icons_by_extension)
+    icon, hl = utils.get_icon(M.get_icon)
   end
 
   -- don't highlight icon if the window is not active
@@ -52,35 +51,38 @@ function M.get_winbar(opts)
     hl = config.options.dim_inactive.highlight
   end
 
-  local sectionA = "  %#" .. hl .. "#" .. icon
-  local sectionBhl = "WinBar"
+  -- local sectionA = " %#" .. "MiniIconsAzure" .. "#" .. icon
+  local sectionA = "%#" .. hl .. "#" .. icon
+  local sectionBhl = hl
   local sectionC = ""
 
   if vim.api.nvim_get_option_value("mod", {}) and config.options.buf_modified_symbol then
-    if diagnostics.level == "other" then
-      sectionBhl = "BufferCurrentMod"
-      sectionC = "%#" .. sectionBhl .. "# " .. config.options.buf_modified_symbol
-    else
-      sectionC = " " .. config.options.buf_modified_symbol
-    end
+    -- if diagnostics.level == "other" then
+    --   sectionBhl = "BufferCurrentMod"
+    --   sectionC = "%#" .. sectionBhl .. "# " .. config.options.buf_modified_symbol
+    -- else
+    --   sectionC = " " .. config.options.buf_modified_symbol
+    -- end
+    sectionBhl = "BufferCurrentMod"
+    sectionC = "%#" .. sectionBhl .. "# " .. config.options.buf_modified_symbol
   end
 
-  if diagnostics.level == "error" then
-    sectionBhl = "DiagnosticError"
-  elseif diagnostics.level == "warning" then
-    sectionBhl = "DiagnosticWarn"
-  elseif diagnostics.level == "info" then
-    sectionBhl = "DiagnosticInfo"
-  elseif diagnostics.level == "hint" then
-    sectionBhl = "DiagnosticHint"
-  end
+  -- if diagnostics.level == "error" then
+  --   sectionBhl = "DiagnosticError"
+  -- elseif diagnostics.level == "warning" then
+  --   sectionBhl = "DiagnosticWarn"
+  -- elseif diagnostics.level == "info" then
+  --   sectionBhl = "DiagnosticInfo"
+  -- elseif diagnostics.level == "hint" then
+  --   sectionBhl = "DiagnosticHint"
+  -- end
 
   -- don't highlight name if the window is not active
   if should_dim and config.options.dim_inactive.name then
     sectionBhl = config.options.dim_inactive.highlight
   end
 
-  local sectionB = "  " .. "%#" .. sectionBhl .. "%#" .. get_folders() .. "%t" .. sectionC
+  local sectionB = " " .. "%#" .. sectionBhl .. "#" .. get_folders() .. "%t" .. sectionC
   return sectionA .. sectionB .. "%*"
 end
 
@@ -126,13 +128,11 @@ function M.setup(options)
   config.setup(options)
 
   if config.options.icons then
-    local has_devicons, devicons = pcall(require, "nvim-web-devicons")
-    if has_devicons and devicons then
-      M.icons_by_filename = devicons.get_icons_by_filename()
-      M.icons_by_extension = devicons.get_icons_by_extension()
-    else
-      error("Icons is set to true but dependency nvim-web-devicons is missing")
+    local has_devicons, web_icons = pcall(require, "mini.icons")
+    if not has_devicons then
+      vim.notify("Icons is set to true but dependency mini.icons is missing")
     end
+    M.get_icon = web_icons.get
   end
 
   M.register()
