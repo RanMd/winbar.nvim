@@ -53,7 +53,7 @@ function M.get_winbar(opts)
 
   -- alocal sectionA = " %#" .. "MiniIconsAzure" .. "#" .. icon
   local sectionA = "%#" .. hl .. "#" .. icon
-  local sectionBhl = "TroubleText"
+  local sectionBhl = "WinBar"
   local sectionC = ""
 
   if vim.api.nvim_get_option_value("mod", {}) and config.options.buf_modified_symbol then
