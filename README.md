@@ -1,17 +1,17 @@
 # winbar.nvim
 Sets a winbar at the top for each file
 
-<img width="865" alt="image" src="https://github.com/Ramilito/winbar.nvim/assets/8473233/8cd807ea-86ee-48d9-96c2-fb725c522ef0">
+<img width="865" alt="image" src="https://github.com/user-attachments/assets/1c54b0f2-6065-4941-984d-4277985c97c5">
 
 ## ✨ Features
 - Shows if a file is modified and not saved
-- Colored icons
+- Colored icons (using mini.icons highlightings)
 - Integrates with diagnostics to highlight errors, warn, info, hints
 - Can opt-out of icons and/or diagnostics
 - Very fast!
 
 ## ⚡️ Dependencies
-- [devicons](https://github.com/nvim-tree/nvim-web-devicons) (icons) -- If ```config.icons = true```
+- [mini.icons](https://github.com/echasnovski/mini.icons) (icons) -- If ```config.icons = true```
 
 ## 📦 Installation
 
@@ -22,9 +22,9 @@ Install the plugin with your preferred package manager:
 ```lua
 return {
   {
-    "ramilito/winbar.nvim",
+    "RanMd/winbar.nvim",
     event = "VimEnter", -- Alternatively, BufReadPre if we don't care about the empty file when starting with 'nvim'
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = { "echasnovski/mini.icons" },
     config = function()
       require("winbar").setup({
         -- your configuration comes here, for example:
@@ -82,15 +82,14 @@ return {
 No startup impact since we use VimEnter to register the plugin.
 
 ### UI
-On an M2 Mac running nvim ./file
+On a Victus Gaming HP (using WSL)
 
-<img width="356" alt="image" src="https://github.com/Ramilito/winbar.nvim/assets/8473233/f48e8f0c-2073-4cda-b222-93ed16bdfdc6">
-
-On an M2 Mac running nvim
-
-<img width="356" alt="image" src="https://github.com/Ramilito/winbar.nvim/assets/8473233/2c9ab552-ee7e-478a-b54a-15b2337797f3">
-
+<img width="356" alt="image" src="https://github.com/user-attachments/assets/7c2d963d-866e-4db5-89da-e9b1786a113a">
 
 ## Motivation
 This plugin aims to help people move away from the tabline way of working but still need to orient them selves when working with multiple files by giving context.
 The features are inspired by VSCode behaviour, some code is borrowed from bufferline, thanks for that 🙏.
+
+## Thanks
+thanks to ramilito for creating the plugin 
+[original plugin](https://github.com/Ramilito/winbar.nvim/tree/main)
