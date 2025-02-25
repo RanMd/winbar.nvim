@@ -2,83 +2,75 @@ local utils = require("winbar.utils")
 local config = require("winbar.config")
 local M = {}
 
+local cached_icon, cached_hl_icon = "", ""
+
 local function augroup(name)
   return vim.api.nvim_create_augroup("winbar_" .. name, { clear = true })
 end
 
-local function get_folders()
-  local levels = config.options.dir_levels
-  if levels <= 0 then
-    return ""
+local function update_cached_icon()
+  if config.options.icons then
+    cached_icon, cached_hl_icon = utils.get_icon(M.get_icon)
   end
+end
 
-  local path = vim.fn.expand("%:p:h")
-
-  local parts = {}
-  for part in string.gmatch(path, "[^/]+") do
-    table.insert(parts, part)
-  end
-
-  local result = {}
-
-  local start = math.max(#parts - config.options.dir_levels + 1, 0)
-  for i = start, #parts do
-    if i > 0 then
-      table.insert(result, parts[i])
-    end
-  end
-  local folders = table.concat(result, "/")
-
-  return (folders ~= "" and folders .. "/" or "")
+local function get_path()
+  local path = vim.fn.fnamemodify(vim.fn.expand("%:p:h"), ":.")
+  return path
 end
 
 ---@return string
 function M.get_winbar(opts)
   local diagnostics = {}
-  local icon, hl = "", ""
+  local hl_bfn = "WinBar"
   local should_dim = not opts.active and config.options.dim_inactive.enabled
 
   if config.options.diagnostics then
     diagnostics = utils.get_diagnostics()
   end
 
-  if config.options.icons then
-    icon, hl = utils.get_icon(M.get_icon)
-  end
+  -- Don't highlight icon if the window is not active
+  local hl_icon = should_dim and config.options.dim_inactive.icons and config.options.dim_inactive.highlight
+    or cached_hl_icon
 
-  -- don't highlight icon if the window is not active
-  if should_dim and config.options.dim_inactive.icons then
-    hl = config.options.dim_inactive.highlight
-  end
+  -- Build section a (icon)
+  local sectionA = table.concat({ " %#", hl_icon, "#", cached_icon, " " })
 
-  -- alocal sectionA = " %#" .. "MiniIconsAzure" .. "#" .. icon
-  local sectionA = " %#" .. hl .. "#" .. icon
-  local sectionBhl = "WinBar"
-  local sectionC = ""
+  -- Build section c (cached path)
+  local sectionC = "%#WinBarDir#" .. get_path()
 
+  -- Build section d (buffer modified)
+  local sectionD = ""
   if vim.api.nvim_get_option_value("mod", {}) and config.options.buf_modified_symbol then
-    sectionBhl = "BufferCurrentMod"
-    sectionC = "%#" .. sectionBhl .. "# " .. config.options.buf_modified_symbol
+    sectionD = M.mod_icon
   end
 
   if diagnostics.level == "error" then
-    sectionBhl = "DiagnosticError"
+    hl_bfn = "DiagnosticError"
   elseif diagnostics.level == "warning" then
-    sectionBhl = "DiagnosticWarn"
+    hl_bfn = "DiagnosticWarn"
   elseif diagnostics.level == "info" then
-    sectionBhl = "DiagnosticInfo"
+    hl_bfn = "DiagnosticInfo"
   elseif diagnostics.level == "hint" then
-    sectionBhl = "DiagnosticHint"
+    hl_bfn = "DiagnosticHint"
   end
-  local a = vim.fn.fnamemodify(vim.fn.expand("%:p:h"), ":.")
 
-  -- don't highlight name if the window is not active
+  -- Don't highlight name if the window is not active
   if should_dim and config.options.dim_inactive.name then
-    sectionBhl = config.options.dim_inactive.highlight
+    hl_bfn = config.options.dim_inactive.highlight
   end
 
-  -- local sectionB = "  " .. "%#" .. sectionBhl .. "#" .. get_folders() .. "%t" .. sectionC
-  local sectionB = "  " .. "%#" .. sectionBhl .. "#" .. "%t " .. "%#WinBarDir#" .. a .. sectionC
+  -- Build section b (buffer name)
+  local sectionB = table.concat({
+    " ",
+    "%#",
+    hl_bfn,
+    "#",
+    "%t ",
+    sectionC,
+    sectionD,
+  })
+
   return sectionA .. sectionB .. "%*"
 end
 
@@ -118,6 +110,14 @@ function M.register()
       end)
     end,
   })
+
+  -- Autocmd para actualizar el path cuando cambie el buffer
+  vim.api.nvim_create_autocmd({ "BufEnter" }, {
+    group = augroup("winbar_path_update"),
+    callback = function()
+      update_cached_icon()
+    end,
+  })
 end
 
 function M.setup(options)
@@ -129,8 +129,10 @@ function M.setup(options)
       vim.notify("Icons is set to true but dependency mini.icons is missing")
     end
     M.get_icon = web_icons.get
+    M.mod_icon = "%=" .. "%#BufferCurrentMod#" .. config.options.buf_modified_symbol .. " "
   end
 
+  update_cached_icon() -- Cargar el icono solo una vez
   M.register()
 end
 
