@@ -17,7 +17,7 @@ function M.get_winbar(opts)
   local icon, hl_icon = "", ""
   local hl_bfn = "WinBar"
   local should_dim = not opts.active and config.options.dim_inactive.enabled
-  vim.print("inactive:" .. tostring(should_dim) .. vim.api.nvim_get_current_win())
+  -- vim.print("inactive:" .. tostring(should_dim) .. vim.api.nvim_get_current_win())
 
   if config.options.diagnostics then
     diagnostics = utils.get_diagnostics()
