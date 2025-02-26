@@ -79,7 +79,6 @@ function M.register()
         if vim.fn.match(filetype, pattern) ~= -1 then
           local ok, winbar_set_by_plugin = pcall(vim.api.nvim_buf_get_var, 0, "winbar_set_by_winbar_nvim")
           if ok and winbar_set_by_plugin then
-            -- print("winbar eliminado")
             vim.opt_local.winbar = nil
             vim.api.nvim_buf_set_var(0, "winbar_set_by_winbar_nvim", false)
           end
@@ -92,7 +91,6 @@ function M.register()
 
       if win_config.relative == "" then
         local bar = M.get_winbar({ active = args.event ~= "WinLeave" }) .. "%*"
-        -- print("Nuevo winbar:", bar)
         vim.opt_local.winbar = bar
         vim.api.nvim_buf_set_var(0, "winbar_set_by_winbar_nvim", true)
       else
