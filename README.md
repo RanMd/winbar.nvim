@@ -1,7 +1,7 @@
 # winbar.nvim
 Sets a winbar at the top for each file
 
-<img width="865" alt="image" src="https://github.com/user-attachments/assets/1c54b0f2-6065-4941-984d-4277985c97c5">
+<img width="865" alt="image" src="https://github.com/user-attachments/assets/42aa3205-2a9f-401a-bf4b-9c1cf6b15626">
 
 ## ✨ Features
 - Shows if a file is modified and not saved
@@ -37,8 +37,6 @@ return {
         dim_inactive = {
             enabled = false,
             highlight = "WinBarNC",
-            icons = true, -- whether to dim the icons
-            name = true, -- whether to dim the name
         }
       })
     end
@@ -54,7 +52,6 @@ return {
   icons = true,
   diagnostics = true,
   buf_modified = true,
-  dir_levels = 0,
   filetype_exclude = {
     "help",
     "startify",
@@ -91,5 +88,5 @@ This plugin aims to help people move away from the tabline way of working but st
 The features are inspired by VSCode behaviour, some code is borrowed from bufferline, thanks for that 🙏.
 
 ## Thanks
-thanks to ramilito for creating the plugin 
+Thanks to ramilito for creating this plugin and for focusing on efficiency. That emphasis is what led to trying it, and it even resulted in forking the project.
 [original plugin](https://github.com/Ramilito/winbar.nvim/tree/main)
