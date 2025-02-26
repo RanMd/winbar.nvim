@@ -2,16 +2,8 @@ local utils = require("winbar.utils")
 local config = require("winbar.config")
 local M = {}
 
-local cached_icon, cached_hl_icon = "", ""
-
 local function augroup(name)
   return vim.api.nvim_create_augroup("winbar_" .. name, { clear = true })
-end
-
-local function update_cached_icon()
-  if config.options.icons then
-    cached_icon, cached_hl_icon = utils.get_icon(M.get_icon)
-  end
 end
 
 local function get_path()
@@ -22,6 +14,7 @@ end
 ---@return string
 function M.get_winbar(opts)
   local diagnostics = {}
+  local icon, hl_icon = "", ""
   local hl_bfn = "WinBar"
   local should_dim = not opts.active and config.options.dim_inactive.enabled
 
@@ -29,21 +22,12 @@ function M.get_winbar(opts)
     diagnostics = utils.get_diagnostics()
   end
 
-  -- Don't highlight icon if the window is not active
-  local hl_icon = should_dim and config.options.dim_inactive.icons and config.options.dim_inactive.highlight
-    or cached_hl_icon
+  if config.options.icons then
+    icon, hl_icon = utils.get_icon(M.get_icon)
+  end
 
   -- Build section a (icon)
-  local sectionA = table.concat({ " %#", hl_icon, "#", cached_icon, " " })
-
-  -- Build section c (cached path)
-  local sectionC = "%#WinBarDir#" .. get_path()
-
-  -- Build section d (buffer modified)
-  local sectionD = ""
-  if vim.api.nvim_get_option_value("mod", {}) and config.options.buf_modified_symbol then
-    sectionD = M.mod_icon
-  end
+  local sectionA = table.concat({ " %#", hl_icon, "#", icon, " " })
 
   if diagnostics.level == "error" then
     hl_bfn = "DiagnosticError"
@@ -55,23 +39,27 @@ function M.get_winbar(opts)
     hl_bfn = "DiagnosticHint"
   end
 
+  -- Build section b (buffer name )
+  local sectionB = table.concat({ " %#", hl_bfn, "%#", "%t " })
+
   -- Don't highlight name if the window is not active
-  if should_dim and config.options.dim_inactive.name then
+  if should_dim then
     hl_bfn = config.options.dim_inactive.highlight
   end
 
-  -- Build section b (buffer name)
-  local sectionB = table.concat({
-    " ",
-    "%#",
-    hl_bfn,
-    "#",
-    "%t ",
-    sectionC,
-    sectionD,
-  })
+  -- Build section c (path)
+  local sectionC = "%#WinBarDir#" .. get_path()
 
-  return sectionA .. sectionB .. "%*"
+  -- Build section d (buffer modified)
+  local sectionD = ""
+
+  if vim.api.nvim_get_option_value("mod", {}) and config.options.buf_modified_symbol then
+    sectionD = M.mod_icon
+  end
+
+  local winbar = table.concat({ sectionA, sectionB, sectionC, sectionD, "%*" })
+
+  return winbar
 end
 
 function M.register()
@@ -110,14 +98,6 @@ function M.register()
       end)
     end,
   })
-
-  -- Autocmd para actualizar el path cuando cambie el buffer
-  vim.api.nvim_create_autocmd({ "BufEnter" }, {
-    group = augroup("winbar_path_update"),
-    callback = function()
-      update_cached_icon()
-    end,
-  })
 end
 
 function M.setup(options)
@@ -132,7 +112,6 @@ function M.setup(options)
     M.mod_icon = "%=" .. "%#BufferCurrentMod#" .. config.options.buf_modified_symbol .. " "
   end
 
-  update_cached_icon() -- Cargar el icono solo una vez
   M.register()
 end
 
