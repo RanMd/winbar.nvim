@@ -21,6 +21,15 @@ function M.get_winbar(opts)
 
   if config.options.diagnostics then
     diagnostics = utils.get_diagnostics()
+    if diagnostics.level == "error" then
+      hl_bfn = "DiagnosticError"
+    elseif diagnostics.level == "warning" then
+      hl_bfn = "DiagnosticWarn"
+    elseif diagnostics.level == "info" then
+      hl_bfn = "DiagnosticInfo"
+    elseif diagnostics.level == "hint" then
+      hl_bfn = "DiagnosticHint"
+    end
   end
 
   if config.options.icons then
@@ -45,16 +54,6 @@ function M.get_winbar(opts)
 
   if vim.api.nvim_get_option_value("mod", {}) and config.options.buf_modified_symbol then
     sectionD = M.mod_icon
-  end
-
-  if diagnostics.level == "error" then
-    hl_bfn = "DiagnosticError"
-  elseif diagnostics.level == "warning" then
-    hl_bfn = "DiagnosticWarn"
-  elseif diagnostics.level == "info" then
-    hl_bfn = "DiagnosticInfo"
-  elseif diagnostics.level == "hint" then
-    hl_bfn = "DiagnosticHint"
   end
 
   -- Build section b (buffer name)
@@ -91,6 +90,9 @@ function M.register()
 
       if win_config.relative == "" then
         local bar = M.get_winbar({ active = args.event ~= "WinLeave" }) .. "%*"
+        -- local start_time = vim.loop.hrtime() -- take 0.02ms aprox
+        -- local bar = M.get_winbar({ active = args.event ~= "WinLeave" })
+        -- print("Tiempo de ejecución: ", (vim.loop.hrtime() - start_time) / 1e6 .. "ms")
         vim.opt_local.winbar = bar
         vim.api.nvim_buf_set_var(0, "winbar_set_by_winbar_nvim", true)
       else
@@ -100,44 +102,6 @@ function M.register()
     end,
   })
 end
-
--- function M.register()
---   local events = { "VimEnter", "BufEnter", "BufModifiedSet", "WinEnter", "WinLeave" }
---   if config.options.diagnostics then
---     table.insert(events, "DiagnosticChanged")
---   end
---
---   vim.api.nvim_create_autocmd(events, {
---     group = augroup("winbar"),
---     callback = function(args)
---       vim.schedule(function()
---         local filetype = vim.api.nvim_get_option_value("filetype", { buf = 0 })
---         for _, pattern in ipairs(config.options.filetype_exclude) do
---           if vim.fn.match(filetype, pattern) ~= -1 then
---             local ok, winbar_set_by_plugin = pcall(vim.api.nvim_buf_get_var, 0, "winbar_set_by_winbar_nvim")
---             if ok and winbar_set_by_plugin then
---               vim.opt_local.winbar = nil
---               vim.api.nvim_buf_set_var(0, "winbar_set_by_winbar_nvim", false)
---             end
---             return
---           end
---         end
---
---         local win_number = vim.api.nvim_get_current_win()
---         local win_config = vim.api.nvim_win_get_config(win_number)
---
---         if win_config.relative == "" then
---           local bar = " " .. "%*" .. M.get_winbar({ active = args.event ~= "WinLeave" }) .. "%*"
---           vim.api.nvim_set_option_value("winbar", bar, { scope = "local", win = win_number })
---           vim.api.nvim_buf_set_var(0, "winbar_set_by_winbar_nvim", true)
---         else
---           vim.opt_local.winbar = nil
---           vim.api.nvim_buf_set_var(0, "winbar_set_by_winbar_nvim", false)
---         end
---       end)
---     end,
---   })
--- end
 
 function M.setup(options)
   config.setup(options)
