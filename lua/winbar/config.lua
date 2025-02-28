@@ -11,6 +11,7 @@ local defaults = {
     -- icons = true,
     -- name = true,
   },
+  -- Avoid duplicates
   filetype_exclude = {
     "k8s_*",
     "snacks_*",
@@ -38,7 +39,13 @@ local defaults = {
 M.options = {}
 
 function M.setup(options)
-  M.options = vim.tbl_deep_extend("force", {}, defaults, options or {})
+  local combined_options = vim.tbl_deep_extend("force", {}, defaults, options or {})
+
+  if options and options.filetype_exclude then
+    combined_options.filetype_exclude = vim.list_extend(defaults.filetype_exclude, options.filetype_exclude)
+  end
+
+  M.options = combined_options
 end
 
 M.setup()
