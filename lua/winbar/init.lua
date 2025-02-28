@@ -90,10 +90,10 @@ function M.register()
       local win_config = vim.api.nvim_win_get_config(win_number)
 
       if win_config.relative == "" then
-        -- local bar = M.get_winbar({ active = args.event ~= "WinLeave", diagnostics = args.data }) .. "%*"
-        local start_time = vim.loop.hrtime() -- take 0.02ms aprox
         local bar = M.get_winbar({ active = args.event ~= "WinLeave", diagnostics = args.data }) .. "%*"
-        print("Tiempo de ejecución: ", (vim.loop.hrtime() - start_time) / 1e6 .. "ms")
+        -- local start_time = vim.loop.hrtime() -- take 0.02ms aprox
+        -- local bar = M.get_winbar({ active = args.event ~= "WinLeave", diagnostics = args.data }) .. "%*"
+        -- print("Tiempo de ejecución: ", (vim.loop.hrtime() - start_time) / 1e6 .. "ms")
         vim.opt_local.winbar = bar
         vim.api.nvim_buf_set_var(0, "winbar_set_by_winbar_nvim", true)
       else
