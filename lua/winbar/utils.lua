@@ -85,8 +85,12 @@ function M.get_icon(get_icon_fun)
   local filetype = vim.fn.fnamemodify(path, ":t")
   local ext = vim.fn.fnamemodify(path, ":e")
 
+  if ext == "" or ext == nil then
+    ext = vim.bo.filetype
+  end
+
   local icon, hl, is_default = get_icon_fun("file", filetype)
-  if not icon then
+  if is_default then
     icon, hl, is_default = get_icon_fun("filetype", ext)
   end
 
